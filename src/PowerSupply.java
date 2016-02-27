@@ -21,11 +21,6 @@ public class PowerSupply extends Element{
 		posNode = null;
 		negNode = null;
 	}
-	
-	public PowerSupply(int i, Random r) {
-		super(r);
-		new PowerSupply((double)i, r);
-	}
 
 	/* public methods. */
 	public void connectPosNode(Node n){

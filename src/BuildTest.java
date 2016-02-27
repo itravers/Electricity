@@ -5,7 +5,7 @@ public class BuildTest {
 	public static void main(String [] args){
 		Random r = new Random(System.currentTimeMillis());
 		Circuit c1 = new Circuit();
-		PowerSupply s = new PowerSupply(12, r);
+		PowerSupply s = new PowerSupply(new Double(12), r);
 		c1.addSupply(s);
 		
 		Node n1 = new Node(r);

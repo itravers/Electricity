@@ -15,7 +15,7 @@ import java.util.Random;
 public class Circuit {
 	/* Member Variables */
 	private String name; //The name we refer to this particular circuit by.
-	private ArrayList<Circuit>circuits; // In order to simplify circuits we will have to remember the previous ones.
+	private Circuit complicatedCircuit; // In order to simplify circuits we will have to remember the previous ones.
 	private ArrayList<Node>nodes; // A List of all the nodes in the circuit.
 	private ArrayList<Resistor>resistors; // An list of all the resistors in the circuit.
 	private PowerSupply supply; // The power supply of the circuit.
@@ -27,15 +27,28 @@ public class Circuit {
 	public Circuit(){
 		random = new Random(System.currentTimeMillis());
 		name = newName();
-		circuits = new ArrayList<Circuit>();
+		complicatedCircuit = null;
 		nodes = new ArrayList<Node>();
 		resistors = new ArrayList<Resistor>();
-		supply = new PowerSupply(12, random);
+		supply = null;
 	}
 	
+	/**
+	 * This is the constructor used by the combine call. We create a new circuit based on the current circuit,
+	 * however we replace the two resistors contained in toCombine, with a single combined resistor in the new circuit.
+	 * We decide how to combine the two resistors into the new circuit using isSeries to tell if they are in Series, or Parallel.
+	 * Our new circuit contains a reference to the more complicated circuit so we can backtrack later
+	 * @param circuit The complicatedCircuit we are simplifying.
+	 * @param toCombine The two Resistors we are combining
+	 * @param isSeries True for Series resistors, false and these are parallel resistors
+	 */
+	public Circuit(Circuit circuit, ArrayList<Resistor> toCombine, Boolean isSeries) {
+		// TODO Auto-generated constructor stub
+	}
+
 	/* Public Methods */
-	public void addCircuit(Circuit c){
-		circuits.add(c);
+	public void addComplicatedCircuit(Circuit c){
+		complicatedCircuit = c;
 	}
 	
 	public void addNode(Node n){
@@ -56,6 +69,52 @@ public class Circuit {
 	
 	public String getName(){
 		return name;
+	}
+	
+	/**
+	 * Recursively simplify by finding first series or parallel resistors
+	 * then create new circuit combining said resistors, and simplify that
+	 */
+	public void simplify(){
+		//first we check if this is the most simple circuit possible, if so, we can go on to solve simple circuit.
+		//we know it's the most simple circuit, if there is only 1 resistor
+		if(resistors.size() <= 1){
+			solve();
+		}else{
+			combine();
+		}
+	}
+	
+	/**
+	 * Find the first Series, or Parallel resisistors, combine them and create a new
+	 * circuit using the combined resistors, then simplify that one.
+	 */
+	private void combine(){
+		Boolean isSeries = null;
+		ArrayList<Resistor>toCombine = getSeriesResistors(); //If series resistors exists, this will return them, otherwise toCombine will be null.
+		if(toCombine == null){ //There are no simple series resistors in this circuit.
+			toCombine = getParallelResistors(); // If parallel resistors exists, this will return them, otherwise toCombine will be null
+			if(toCombine == null){
+				//we only get to this point if there are no series, or parallel resistors in circuit.
+				//However, we only call combine if there are more than 1 resistor, therefore something
+				//must be in series, or in parallel, therefore something is wrong and there is an error somewhere in 
+				//the algorithm.
+				System.out.println("ERROR: resistors.size() == " + resistors.size() + ", however, no series or parallel resistors were found.");
+				System.exit(1);
+			}else{
+				isSeries = false; //We know that toCombine are resistors in parallel, so isSeries is false
+			}
+		}else{
+			isSeries = true; //We know that toCombine are resistors in series, so isSeries is true
+		}
+		
+		/* At this point toCombine is guaranteed not to be null, it has two elements. */
+		Circuit c2 = new Circuit(this, toCombine, isSeries);
+		
+	}
+	
+	private void solve(){
+		System.out.println("THIS IS WHERE WE WILL SOLVE!");
 	}
 	
 	/**
