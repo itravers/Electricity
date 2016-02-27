@@ -42,8 +42,8 @@ public class BuildTest {
 		r3.setNodeB(n3);
 		c1.addNode(n3);
 		
-		ArrayList<Resistor>parallel = c1.getParallelResistors();
-		ArrayList<Resistor>series = c1.getSeriesResistors(); //this should return null at this point
+		//ArrayList<Resistor>parallel = c1.getParallelResistors();
+		//ArrayList<Resistor>series = c1.getSeriesResistors(); //this should return null at this point
 		c1.print();
 		
 		c1.simplify();

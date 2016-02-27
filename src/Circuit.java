@@ -52,6 +52,57 @@ public class Circuit {
 		if(isSeries){ //toCombine resistors are in series
 			
 			/* We've need to complete and combine 2 resistors in series.
+			 * 1. Create a new Resistor using r=r1+r2
+			 * 2. Find the 1 common, and 2 uncommon nodes.
+			 * 3. Tell the new Resistor what it is replaceing, 2 resistors and a node.
+			 * 4. Copy nodes and resistors, and powerSupply from old circuit
+			 * 5. Remove toCombine resistors from the copy.
+			 * 5A. Remove commonNode from copy
+			 * 5B. Remove all nodes references to toCombine resistors from copy
+			 * 6. Wire up new resistors node references
+			 * 6A. Wire up new resistors neighbors to new resistor
+			 * 7. Add new resistor to the copy
+			 * At this point the copy will be 1 step more simplified than the current circuit(this)
+			 * */
+			
+			//1. Create a new resistor using r=r1+r2
+			Resistor r = new Resistor(r1.getOhms() + r2.getOhms(), random);
+			
+			//2. Find the 1 common, and 2 uncommon nodes.
+			Node commonNode = r1.getCommonNode(r2);
+			Node uncommonNodeR1 = r1.getUncommonNode(r2);
+			Node uncommonNodeR2 = r2.getUncommonNode(r1);
+			
+			//3. Tell new resistor it is replacing 2 old resistors, and an old node.
+			r.setReplacement(new Replacement(r1, r2, commonNode, isSeries));
+			
+			//4. Copy nodes and resistors from oldCircuit
+			nodes = copyNodes(oldCircuit.nodes);
+			resistors = copyResistors(oldCircuit.resistors);
+			supply = copyPowerSupply(oldCircuit.supply);
+			
+			//5. Remove toCombine Resistors from copy.
+			removeResistor(r1, resistors);
+			removeResistor(r2, resistors);
+			
+			//5A. Remove commonNode from copy
+			nodes.remove(commonNode);
+			
+			//5B. Remove all node references to the toCombine resistors from the copy
+			removeResistorFromNodeConnections(r1, nodes);
+			removeResistorFromNodeConnections(r2, nodes);
+			
+			//6. Wire up new Resistors Node references. then nodes, resistor connections
+			r.setNodeA(uncommonNodeR1);
+			r.setNodeB(uncommonNodeR2);
+			
+			//6A. Wire up new resistors neighbors to new resistor
+			addNeighborConnections(r, nodes);
+			
+			//7. Add new resistor to this new copy
+			this.resistors.add(r);
+			
+					
 			
 		}else{ //toCombine resistors are in parallel
 			/* To combine parallel Resistors:
@@ -70,8 +121,6 @@ public class Circuit {
 			resistors = copyResistors(oldCircuit.resistors);
 			supply = copyPowerSupply(oldCircuit.supply);
 			
-			
-			
 			removeResistor(r1, resistors); //will remove the same resistors name from resistors as r1.name
 			removeResistor(r2, resistors);
 			
@@ -85,11 +134,7 @@ public class Circuit {
 			//wire up new Resistors Nodes
 			addNeighborConnections(r, nodes);
 			
-			
-			
 			resistors.add(r);
-			
-			
 		}
 	}
 	
@@ -207,7 +252,7 @@ public class Circuit {
 	 */
 	public ArrayList<Resistor>getParallelResistors(){
 		ArrayList<Resistor>results = null;
-		System.out.println("Checking parallel Resistors");
+		System.out.print("Checking parallel Resistors: ");
 		for(int i = 0; i < resistors.size(); i++){
 			for(int j = i+1; j < resistors.size(); j++){
 				Resistor r1 = resistors.get(i);
@@ -218,11 +263,13 @@ public class Circuit {
 						results = new ArrayList<Resistor>();
 						results.add(r1);
 						results.add(r2);
+						System.out.println("Parallels Found1");
 						return results;
 					}else if(r1.getNodeA() == r2.getNodeB() && r1.getNodeB() == r2.getNodeA()){ //nodes match
 						results = new ArrayList<Resistor>();
 						results.add(r1);
 						results.add(r2);
+						System.out.println("Parallels Found2");
 						return results;
 					}else{ //nodes don't match
 						//do nothing and keep going through loop
@@ -230,6 +277,7 @@ public class Circuit {
 				}
 			}
 		}
+		System.out.println(" No Parrallels found ");
 		return results;
 	}
 	
@@ -239,25 +287,46 @@ public class Circuit {
 	 */
 	public ArrayList<Resistor>getSeriesResistors(){
 		ArrayList<Resistor>results = null;
+		System.out.print(" Checking Series Resistors ");
 		for(int i = 0; i < resistors.size(); i++){
 			for(int j = i+1; j < resistors.size(); j++){
 				Resistor r1 = resistors.get(i);
 				Resistor r2 = resistors.get(j);
-				if ( ((r1.getNodeA() == r2.getNodeA()) || (r1.getNodeA() == r2.getNodeB() )) && !r1.getNodeA().isExtraOrdinary()){ //r1 and r2 are series
+				if ( r1.getNodeA() == r2.getNodeA()  && !r1.getNodeA().isExtraOrdinary()){ //r1 and r2 are series
 					results = new ArrayList<Resistor>();
 					results.add(r1);
 					results.add(r2);
+					System.out.println("Series Found1");
 					return results;
-				}if( ((r1.getNodeB() == r2.getNodeA()) || (r1.getNodeB() == r2.getNodeB() )) && !r1.getNodeB().isExtraOrdinary()){ //r1 and r2 are series
+				}else if(r1.getNodeA() == r2.getNodeB()  && !r1.getNodeA().isExtraOrdinary()){
 					results = new ArrayList<Resistor>();
 					results.add(r1);
 					results.add(r2);
+					System.out.println("Series Found2");
+					return results;
+				}
+				
+				
+				
+				if(r1.getNodeB() == r2.getNodeA() && !r1.getNodeB().isExtraOrdinary()){ //r1 and r2 are series
+					results = new ArrayList<Resistor>();
+					results.add(r1);
+					results.add(r2);
+					System.out.println("Series Found3");
+					return results;
+				}else if(r1.getNodeB() == r2.getNodeB()  && !r1.getNodeB().isExtraOrdinary()){
+					results = new ArrayList<Resistor>();
+					results.add(r1);
+					results.add(r2);
+					System.out.println("Series Found4");
 					return results;
 				}else{//nothing is in series.
+				
 					//do nothing for this loop
 				}
 			}
 		}
+		System.out.println(" No Series Found");
 		return results; //this will alway be null, if a value appears it will be returned in the double loop
 	}
 	
