@@ -30,9 +30,17 @@ public class Node {
 		connections.add(e);
 	}
 	
+	public boolean isExtraOrdinary(){
+		if(connections.size() > 2){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	/* Private Methods */
 	private String newName(long l){
 		Random random = new Random(l);
-		return new BigInteger(130, random).toString(32);
+		return new BigInteger(32, random).toString(32);
 	}
 }

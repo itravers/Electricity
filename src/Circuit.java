@@ -28,7 +28,7 @@ public class Circuit {
 		circuits = new ArrayList<Circuit>();
 		nodes = new ArrayList<Node>();
 		resistors = new ArrayList<Resistor>();
-		supply = new PowerSupply();
+		supply = new PowerSupply(12);
 	}
 	
 	/* Public Methods */
@@ -56,10 +56,43 @@ public class Circuit {
 		return name;
 	}
 	
+	/**
+	 * Parallel resistors are known because they
+	 * share the same extraordinary nodes.
+	 * @return
+	 */
+	public ArrayList<Resistor>getParallelResistors(){
+		ArrayList<Resistor>results = null;
+		System.out.println("Checking parallel Resistors");
+		for(int i = 0; i < resistors.size(); i++){
+			for(int j = i+1; j < resistors.size(); j++){
+				Resistor r1 = resistors.get(i);
+				Resistor r2 = resistors.get(j);
+				if(r1.getNodeA().isExtraOrdinary() && r1.getNodeB().isExtraOrdinary() 
+						&& r2.getNodeA().isExtraOrdinary() && r2.getNodeB().isExtraOrdinary()){ //Both nodes, from both resistors must be extraordinary
+					if(r1.getNodeA() == r2.getNodeA() && r1.getNodeB() == r2.getNodeB()){ //nodes match
+						results = new ArrayList<Resistor>();
+						results.add(r1);
+						results.add(r2);
+						return results;
+					}else if(r1.getNodeA() == r2.getNodeB() && r1.getNodeB() == r2.getNodeA()){ //nodes match
+						results = new ArrayList<Resistor>();
+						results.add(r1);
+						results.add(r2);
+						return results;
+					}else{ //nodes don't match
+						//do nothing and keep going through loop
+					}
+				}
+			}
+		}
+		return results;
+	}
+	
 	/* Private Methods */
 	private String newName(long l){
 		Random random = new Random(l);
-		return new BigInteger(130, random).toString(32);
+		return new BigInteger(32, random).toString(32);
 	}
 	
 }

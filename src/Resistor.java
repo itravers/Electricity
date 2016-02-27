@@ -10,13 +10,13 @@ import java.util.Random;
  *
  */
 public class Resistor extends Element {
-	String name;
-	Double ohms;
-	Double amps;
-	Double voltageDrop;
-	Node nodeA;
-	Node nodeB;
-	Replacement replacement;
+	private String name;
+	private Double ohms;
+	private Double amps;
+	private Double voltageDrop;
+	private Node nodeA;
+	private Node nodeB;
+	private Replacement replacement;
 	
 	public Resistor(Double o){
 		name = newName(System.currentTimeMillis());
@@ -30,10 +30,33 @@ public class Resistor extends Element {
 	}
 	
 	
+	public Resistor(int o) {
+		new Resistor((double)o);
+	}
+
+	/* Public Methods */
+	public void setNodeA(Node n){
+		nodeA = n;
+	}
+	
+	public void setNodeB(Node n){
+		nodeB = n;
+	}
+	
+	public Node getNodeA(){
+		return nodeA;
+	}
+	
+	public Node getNodeB(){
+		return nodeB;
+	}
+	
+	
+
 	/* Private Methods */
 	private String newName(long l){
 		Random random = new Random(l);
-		return new BigInteger(130, random).toString(32);
+		return new BigInteger(32, random).toString(32);
 	}
 	
 	/* Private Classes */
