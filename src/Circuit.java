@@ -89,6 +89,34 @@ public class Circuit {
 		return results;
 	}
 	
+	/**
+	 * Series resistors are known because they share an ordinary node
+	 * @return An ArrayList containing the two resistors in series.
+	 */
+	public ArrayList<Resistor>getSeriesResistors(){
+		ArrayList<Resistor>results = null;
+		for(int i = 0; i < resistors.size(); i++){
+			for(int j = i+1; j < resistors.size(); j++){
+				Resistor r1 = resistors.get(i);
+				Resistor r2 = resistors.get(j);
+				if ( ((r1.getNodeA() == r2.getNodeA()) || (r1.getNodeA() == r2.getNodeB() )) && !r1.getNodeA().isExtraOrdinary()){ //r1 and r2 are series
+					results = new ArrayList<Resistor>();
+					results.add(r1);
+					results.add(r2);
+					return results;
+				}if( ((r1.getNodeB() == r2.getNodeA()) || (r1.getNodeB() == r2.getNodeB() )) && !r1.getNodeB().isExtraOrdinary()){ //r1 and r2 are series
+					results = new ArrayList<Resistor>();
+					results.add(r1);
+					results.add(r2);
+					return results;
+				}else{//nothing is in series.
+					//do nothing for this loop
+				}
+			}
+		}
+		return results; //this will alway be null, if a value appears it will be returned in the double loop
+	}
+	
 	/* Private Methods */
 	private String newName(long l){
 		Random random = new Random(l);
