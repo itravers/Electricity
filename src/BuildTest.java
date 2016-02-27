@@ -10,7 +10,7 @@ public class BuildTest {
 		
 		Node n1 = new Node(r);
 		n1.addConnection(s);
-		s.connectPosNode(n1);
+		s.setPosNode(n1);
 		c1.addNode(n1);
 		
 		Resistor r1 = new Resistor(new Double(100), r);
@@ -35,7 +35,7 @@ public class BuildTest {
 		
 		Node n3 = new Node(r);
 		n3.addConnection(s);
-		s.connectNegNode(n3);
+		s.setNegNode(n3);
 		n3.addConnection(r2);
 		r2.setNodeB(n3);
 		n3.addConnection(r3);
@@ -45,6 +45,8 @@ public class BuildTest {
 		ArrayList<Resistor>parallel = c1.getParallelResistors();
 		ArrayList<Resistor>series = c1.getSeriesResistors(); //this should return null at this point
 		c1.print();
+		
+		c1.simplify();
 		System.out.println(c1);
 		System.out.println("Test");
 		

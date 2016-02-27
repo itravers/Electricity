@@ -2,7 +2,7 @@ import java.math.BigInteger;
 import java.util.Random;
 
 /**
- * An Element is an abstract class that doesn't do anything
+ * An Element is an abstract class that just tracks names
  * power supplies and resistors are elements, we want to be able to treat them in a single connection
  * list
  * @author Isaac Assegai
@@ -24,6 +24,14 @@ public class Element {
 	
 	public String getName(){
 		return name;
+	}
+	
+	public Random getRandom(){
+		return random;
+	}
+	
+	public void setName(String name){
+		this.name = name;
 	}
 
 }

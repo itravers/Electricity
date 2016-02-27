@@ -23,16 +23,20 @@ public class PowerSupply extends Element{
 	}
 
 	/* public methods. */
-	public void connectPosNode(Node n){
+	public void setPosNode(Node n){
 		posNode = n;
 	}
 	
-	public void connectNegNode(Node n){
+	public void setNegNode(Node n){
 		negNode = n;
 	}
 
 	public Double getVoltage() {
 		return voltage;
+	}
+	
+	public void setVoltage(Double v){
+		voltage = v;
 	}
 
 	public Node getPosNode() {

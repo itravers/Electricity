@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
+
 /**
  * A circuit represents an actual electrical circuit.
  * We model ours with nodes, resistances and power supplies.
@@ -42,8 +43,87 @@ public class Circuit {
 	 * @param toCombine The two Resistors we are combining
 	 * @param isSeries True for Series resistors, false and these are parallel resistors
 	 */
-	public Circuit(Circuit circuit, ArrayList<Resistor> toCombine, Boolean isSeries) {
-		// TODO Auto-generated constructor stub
+	public Circuit(Circuit oldCircuit, ArrayList<Resistor> toCombine, Boolean isSeries) {
+		random = new Random(System.currentTimeMillis());
+		name = newName();
+		complicatedCircuit = oldCircuit;
+		Resistor r1 = toCombine.get(0);
+		Resistor r2 = toCombine.get(1);
+		if(isSeries){ //toCombine resistors are in series
+			
+			/* We've need to complete and combine 2 resistors in series.
+			
+		}else{ //toCombine resistors are in parallel
+			/* To combine parallel Resistors:
+			 * 1. Create new Resistor, using ohm (r1*r2)/(r1+r2)
+			 * 2. Tell new resistor what it is replacing.
+			 * 3. Copy nodes and resistors, and ps from oldCircuit
+			 * 4. Remove toCombine resistors from copy.
+			 * 5. Add new resistor to copy, wire up both sides
+			 * 6. Add this to copy.complicatedCircuit
+			 * At this point the copy will be 1 step more simplified than the current circuit(this)
+			 */
+			Double resistance = (r1.getOhms()*r2.getOhms())/(r1.getOhms()+r2.getOhms());
+			Resistor r = new Resistor(resistance, random);
+			r.setReplacement(new Replacement(r1, r2, isSeries));
+			nodes = copyNodes(oldCircuit.nodes); 
+			resistors = copyResistors(oldCircuit.resistors);
+			supply = copyPowerSupply(oldCircuit.supply);
+			
+			
+			
+			removeResistor(r1, resistors); //will remove the same resistors name from resistors as r1.name
+			removeResistor(r2, resistors);
+			
+			removeResistorFromNodeConnections(r1, nodes);
+			removeResistorFromNodeConnections(r2, nodes);
+			
+			//wire up new resistor
+			r.setNodeA(r1.getNodeA()); //since this is parallel, nodeA, and nodeB, will the same as both n1 and n2
+			r.setNodeB(r1.getNodeB());
+			
+			//wire up new Resistors Nodes
+			addNeighborConnections(r, nodes);
+			
+			
+			
+			resistors.add(r);
+			
+			
+		}
+	}
+	
+	private static void addNeighborConnections(Resistor r, ArrayList<Node>nodes){
+		//our neighbor connections no longer work by using straight references, because we've been copying a lot of stuff
+		//we need to check by
+		
+		Node nodeA = r.getNodeA();
+		Node nodeB = r.getNodeB();
+		
+		//first we find the neighbor nodes of r, by searching for names
+		for(int i = 0; i < nodes.size(); i++){
+			Node changeNode = nodes.get(i);
+			if(changeNode.getName().equals(nodeA.getName())){
+				changeNode.addConnection(r);
+			}else if(changeNode.getName().equals(nodeB.getName())){
+				changeNode.addConnection(r);
+			}
+			
+		}
+	}
+	
+	private void removeResistorFromNodeConnections(Resistor r, ArrayList<Node>nodes){
+		//loop through all nodes, check each connection in the nodes to see if the name equals r.name
+		for(int i = 0; i < nodes.size(); i++){
+			Node n = nodes.get(i);
+			for(int j = 0; j < n.getConnections().size(); j++){
+				Element connection = n.getConnections().get(j);
+				if(connection.getName().equals(r.getName())){ //this nodes connections name is the same name as the resistor
+					//remove the connection
+					n.getConnections().remove(connection);
+				}
+			}
+		}
 	}
 
 	/* Public Methods */
@@ -110,6 +190,9 @@ public class Circuit {
 		
 		/* At this point toCombine is guaranteed not to be null, it has two elements. */
 		Circuit c2 = new Circuit(this, toCombine, isSeries);
+		c2.print();
+		
+		c2.simplify();
 		
 	}
 	
@@ -178,8 +261,66 @@ public class Circuit {
 		return results; //this will alway be null, if a value appears it will be returned in the double loop
 	}
 	
+	/**
+	 * We want to duplicate all the info for the nodes, but not use the same objects themselves.
+	 * @param nodes
+	 * @return
+	 */
+	private ArrayList<Node> copyNodes(ArrayList<Node>nodes){
+		ArrayList<Node>copyNodes = new ArrayList<Node>();
+		for(int i = 0; i < nodes.size(); i++){
+			Node oldNode = nodes.get(i);
+			Node newNode = new Node(random);
+			newNode.setName(oldNode.getName());
+			newNode.setConnections(oldNode.getConnections());
+			newNode.setVoltage(oldNode.getVoltage());
+			copyNodes.add(newNode);
+		}
+		return copyNodes;
+	}
+	
+	/**
+	 * We want to copy all the info for the resistors, but not use the same objects themselves.
+	 * @param oldResistors
+	 * @return
+	 */
+	private ArrayList<Resistor> copyResistors(ArrayList<Resistor>oldResistors){
+		ArrayList<Resistor>newResistors = new ArrayList<Resistor>();
+		for(int i = 0; i < oldResistors.size(); i++){
+			Resistor oldResistor = oldResistors.get(i);
+			Resistor newResistor = new Resistor(oldResistor.getOhms(), oldResistor.getRandom());
+			newResistor.setName(oldResistor.getName());
+			newResistor.setAmps(oldResistor.getAmps());
+			newResistor.setVoltageDrop(oldResistor.getVoltageDrop());
+			newResistor.setWatts(oldResistor.getWatts());
+			newResistor.setNodeA(oldResistor.getNodeA());
+			newResistor.setNodeB(oldResistor.getNodeB());
+			newResistors.add(newResistor);
+		}
+		return newResistors;
+	}
+	
+	private PowerSupply copyPowerSupply(PowerSupply oldSupply){
+		PowerSupply newSupply = new PowerSupply(oldSupply.getVoltage(), oldSupply.getRandom());
+		newSupply.setName(oldSupply.getName());
+		newSupply.setVoltage(oldSupply.getVoltage());
+		newSupply.setPosNode(oldSupply.getPosNode());
+		newSupply.setNegNode(oldSupply.getNegNode());
+		return newSupply;
+	}
+	
+	private static void removeResistor(Resistor r, ArrayList<Resistor>resistors){
+		for(int i = 0; i < resistors.size(); i++){
+			Resistor testResistor = resistors.get(i);
+			if(testResistor.getName().equals(r.getName())){//testResistor has same name as r, remove it from resistors
+				resistors.remove(testResistor);
+			}
+		}
+	}
+	
 	public void print(){
 		System.out.println("C: " + name);
+		printComplicatedCircuit();
 		printNodes();
 		printResistors();
 		printPowerSupplies();
@@ -187,7 +328,19 @@ public class Circuit {
 		System.out.println();
 	}
 	
+	
+	
 	/* Private Methods */
+	private void printComplicatedCircuit(){
+		System.out.print("Complicated Circuit: ");
+		if(complicatedCircuit != null){
+			System.out.format("%8s", complicatedCircuit.getName()+"\n");
+		}else{
+			System.out.format("%8s", "NULL \n");
+		}
+		
+	}
+	
 	private String newName(){
 		return new BigInteger(16, random).toString(16);
 	}
@@ -224,10 +377,28 @@ public class Circuit {
 			System.out.format("%8s", r.getWatts()+" ");
 			
 			System.out.format("%-2s", "NodeA: ");
-			System.out.format("%8s", r.getNodeA().getName()+" ");
+			if(r.getNodeA() != null){
+				System.out.format("%8s", r.getNodeA().getName()+" ");
+			}else{
+				System.out.format("%8s", "NULL");
+			}
 			
 			System.out.format("%-2s", "NodeB: ");
-			System.out.format("%8s", r.getNodeB().getName()+"\n");
+			if(r.getNodeB() != null){
+				System.out.format("%8s", r.getNodeB().getName()+" ");
+			}else{
+				System.out.format("%8s", "NULL");
+			}
+			
+			System.out.format("%-2s", "Replacement: ");
+			if(r.getReplacement() != null){
+				System.out.format("%8s", "A: " + r.getReplacement().a.getName()+" ");
+				System.out.format("%8s", "B: " + r.getReplacement().b.getName()+" ");
+				System.out.format("%8s", "isSeries?: " + r.getReplacement().isSeries+"\n");
+			}else{
+				System.out.format("%-2s", "NULL \n");
+			}
+			
 		}
 	}
 	
@@ -244,5 +415,6 @@ public class Circuit {
 		System.out.format("%-1s", "-Node: ");
 		System.out.format("%6s", supply.getNegNode().getName()+"\n");
 	}
+	
 	
 }

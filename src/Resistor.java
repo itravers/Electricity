@@ -56,31 +56,39 @@ public class Resistor extends Element {
 		return amps;
 	}
 	
+	public void setAmps(Double a){
+		amps = a;
+	}
+	
 	public Double getWatts(){
 		return watts;
+	}
+	
+	public void setWatts(Double w){
+		watts = w;
 	}
 	
 	public Double getVoltageDrop(){
 		return voltageDrop;
 	}
 	
+	public void setVoltageDrop(Double v){
+		voltageDrop = v;
+	}
+	
+	public void setReplacement(Replacement r){
+		this.replacement = r;
+	}
+	
+	public Replacement getReplacement(){
+		return replacement;
+	}
+	
+	
+	
 	
 
 	/* Private Methods */
 	
-	
-	/* Private Classes */
-	private class Replacement{
-		public String a;
-		public String b;
-		public String type;
-		
-		public Replacement(String a, String b, String type){
-			this.a = a;
-			this.b = b;
-			this.type = type;
-		}
-		
-	}
 	
 }
