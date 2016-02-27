@@ -19,16 +19,18 @@ public class Circuit {
 	private ArrayList<Node>nodes; // A List of all the nodes in the circuit.
 	private ArrayList<Resistor>resistors; // An list of all the resistors in the circuit.
 	private PowerSupply supply; // The power supply of the circuit.
+	Random random;
 	
 	/** Constructor
 	 * Create a new empty circuit.
 	 */
 	public Circuit(){
-		name = newName(System.currentTimeMillis());
+		random = new Random(System.currentTimeMillis());
+		name = newName();
 		circuits = new ArrayList<Circuit>();
 		nodes = new ArrayList<Node>();
 		resistors = new ArrayList<Resistor>();
-		supply = new PowerSupply(12);
+		supply = new PowerSupply(12, random);
 	}
 	
 	/* Public Methods */
@@ -117,10 +119,71 @@ public class Circuit {
 		return results; //this will alway be null, if a value appears it will be returned in the double loop
 	}
 	
+	public void print(){
+		System.out.println("C: " + name);
+		printNodes();
+		printResistors();
+		printPowerSupplies();
+		System.out.println();
+		System.out.println();
+	}
+	
 	/* Private Methods */
-	private String newName(long l){
-		Random random = new Random(l);
-		return new BigInteger(32, random).toString(32);
+	private String newName(){
+		return new BigInteger(16, random).toString(16);
+	}
+	
+	private void printNodes(){
+		for(int i = 0; i < nodes.size(); i++){
+			Node n = nodes.get(i);
+			System.out.format("%-14s", "Node: " + n.getName()+" ");
+			System.out.print("V: " + n.getVoltage() + " ");
+			System.out.format("%1s", "Connections: ");
+			for(int j = 0; j < n.getConnections().size(); j++){
+				System.out.format("%5s" , n.getConnections().get(j).getName());
+			}
+			System.out.println();
+		}
+	}
+	
+	private void printResistors(){
+		for(int i = 0; i < resistors.size(); i++){
+			Resistor r = resistors.get(i);
+			System.out.format("%-1s", "Resistor: ");
+			System.out.format("%6s", r.getName()+" ");
+			
+			System.out.format("%-2s", "Ohm: ");
+			System.out.format("%8s", r.getOhms()+" ");
+			
+			System.out.format("%-2s", "Amp: ");
+			System.out.format("%8s", r.getAmps()+" ");
+			
+			System.out.format("%-2s", "VDrop: ");
+			System.out.format("%8s", r.getVoltageDrop()+" ");
+			
+			System.out.format("%-2s", "Watts: ");
+			System.out.format("%8s", r.getWatts()+" ");
+			
+			System.out.format("%-2s", "NodeA: ");
+			System.out.format("%8s", r.getNodeA().getName()+" ");
+			
+			System.out.format("%-2s", "NodeB: ");
+			System.out.format("%8s", r.getNodeB().getName()+"\n");
+		}
+	}
+	
+	private void printPowerSupplies(){
+		System.out.format("%-1s", "PowerSupply: ");
+		System.out.format("%6s", supply.getName()+" ");
+		
+		System.out.format("%-1s", "Voltage: ");
+		System.out.format("%6s", supply.getVoltage()+" ");
+		
+		System.out.format("%-1s", "+Node: ");
+		System.out.format("%6s", supply.getPosNode().getName()+" ");
+		
+		System.out.format("%-1s", "-Node: ");
+		System.out.format("%6s", supply.getNegNode().getName()+"\n");
 	}
 	
 }

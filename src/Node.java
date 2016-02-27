@@ -15,12 +15,14 @@ public class Node {
 	private String name; //The name of this node.
 	private Double voltage; //The voltage of this node, or null if not known.
 	private ArrayList<Element>connections; //A list of the names of r's, or ps's this node is connected to.
+	Random random;
 	
 	/**
 	 * Constructor - Create a new empty node;
 	 */
-	public Node(){
-		name = newName(System.currentTimeMillis());
+	public Node(Random random){
+		this.random = random;
+		name = newName(random);
 		voltage = null;
 		connections = new ArrayList<Element>();
 	}
@@ -38,9 +40,22 @@ public class Node {
 		}
 	}
 	
-	/* Private Methods */
-	private String newName(long l){
-		Random random = new Random(l);
-		return new BigInteger(32, random).toString(32);
+	public String getName() {
+		return name;
 	}
+	
+	public ArrayList<Element>getConnections(){
+		return connections;
+	}
+	
+	public Double getVoltage(){
+		return voltage;
+	}
+	
+	/* Private Methods */
+	private String newName(Random random){
+		return new BigInteger(16, random).toString(16);
+	}
+
+	
 }

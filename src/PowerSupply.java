@@ -8,7 +8,6 @@ import java.util.Random;
  *
  */
 public class PowerSupply extends Element{
-	String name;
 	Double voltage;
 	Node posNode;
 	Node negNode;
@@ -16,15 +15,16 @@ public class PowerSupply extends Element{
 	/**
 	 * Create a new unconnected power supply.
 	 */
-	public PowerSupply(Double v){
-		name = newName(System.currentTimeMillis());
+	public PowerSupply(Double v, Random r){
+		super(r);
 		voltage = v;
 		posNode = null;
 		negNode = null;
 	}
 	
-	public PowerSupply(int i) {
-		new PowerSupply((double)i);
+	public PowerSupply(int i, Random r) {
+		super(r);
+		new PowerSupply((double)i, r);
 	}
 
 	/* public methods. */
@@ -35,11 +35,17 @@ public class PowerSupply extends Element{
 	public void connectNegNode(Node n){
 		negNode = n;
 	}
-	
-	
-	/* Private Methods */
-	private String newName(long l){
-		Random random = new Random(l);
-		return new BigInteger(32, random).toString(32);
+
+	public Double getVoltage() {
+		return voltage;
 	}
+
+	public Node getPosNode() {
+		return posNode;
+	}
+	
+	public Node getNegNode(){
+		return negNode;
+	}
+	
 }
