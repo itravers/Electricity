@@ -7,7 +7,7 @@ import java.util.Random;
  * @author Isaac Assegai
  *
  */
-public class PowerSupply {
+public class PowerSupply extends Element{
 	String name;
 	Double voltage;
 	String posNode;

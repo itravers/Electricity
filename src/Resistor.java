@@ -9,13 +9,13 @@ import java.util.Random;
  * @author Isaac Assegai
  *
  */
-public class Resistor {
+public class Resistor extends Element {
 	String name;
 	Double ohms;
 	Double amps;
 	Double voltageDrop;
-	String nodeA;
-	String nodeB;
+	Node nodeA;
+	Node nodeB;
 	Replacement replacement;
 	
 	public Resistor(Double o){

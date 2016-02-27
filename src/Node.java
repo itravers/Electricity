@@ -14,7 +14,7 @@ public class Node {
 	/* Member Variables. */
 	private String name; //The name of this node.
 	private Double voltage; //The voltage of this node, or null if not known.
-	private ArrayList<String>connections; //A list of the names of r's, or ps's this node is connected to.
+	private ArrayList<Element>connections; //A list of the names of r's, or ps's this node is connected to.
 	
 	/**
 	 * Constructor - Create a new empty node;
@@ -22,12 +22,12 @@ public class Node {
 	public Node(){
 		name = newName(System.currentTimeMillis());
 		voltage = null;
-		connections = new ArrayList<String>();
+		connections = new ArrayList<Element>();
 	}
 	
 	/* Public Methods. */
-	public void addConnection(String s){
-		connections.add(s);
+	public void addConnection(Element e){
+		connections.add(e);
 	}
 	
 	/* Private Methods */
